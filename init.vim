@@ -13,6 +13,8 @@ Plug 'drewtempelmeyer/palenight.vim'
 Plug 'marko-cerovac/material.nvim'
 Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'm4xshen/autoclose.nvim'
+Plug 'nvim-lualine/lualine.nvim'
+Plug 'nvim-tree/nvim-web-devicons'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -33,6 +35,48 @@ require("nvim-treesitter.configs").setup({
 })
 
 require("autoclose").setup()
+
+require('lualine').setup {
+  options = {
+    icons_enabled = false,
+    theme = 'nightfly',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+    }
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+}
+
 EOF
 
 " Enable true colors
@@ -60,4 +104,9 @@ set clipboard=unnamedplus
 set tabstop=4
 set expandtab
 set shiftwidth=4
+inoremap \\ <esc>
+vnoremap \\ <esc>
+autocmd TermOpen * startinsert
+autocmd TermOpen * setlocal nonumber
+autocmd TermEnter * setlocal signcolumn=no
 
