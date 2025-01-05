@@ -15,6 +15,11 @@ Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'm4xshen/autoclose.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'nvim-tree/nvim-web-devicons'
+Plug 'sonph/onehalf', { 'rtp': 'vim' }
+Plug 'dgox16/oldworld.nvim'
+Plug 'mellow-theme/mellow.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'", { 'tag': '0.1.8' }
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -25,6 +30,7 @@ call plug#end()
 "
 
 lua << EOF
+-- TREESITTER
 require("nvim-treesitter.configs").setup({
     ensure_installed = { "c", "cpp", "javascript", "typescript", "lua", "vim", "make" },
     sync_install = false,
@@ -34,14 +40,16 @@ require("nvim-treesitter.configs").setup({
     },
 })
 
+-- AUTOCLOSE
 require("autoclose").setup()
 
+-- LUALINE
 require('lualine').setup {
   options = {
     icons_enabled = false,
-    theme = 'nightfly',
-    component_separators = { left = '', right = ''},
-    section_separators = { left = '', right = ''},
+    theme = 'auto',
+    component_separators = { left = ' ', right = ' '},
+    section_separators = { left = ' ', right = ' '},
     disabled_filetypes = {
       statusline = {},
       winbar = {},
@@ -58,7 +66,7 @@ require('lualine').setup {
   sections = {
     lualine_a = {'mode'},
     lualine_b = {'branch', 'diff', 'diagnostics'},
-    lualine_c = {'filename'},
+    lualine_c = {'filename', 'tabs'},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
@@ -76,33 +84,69 @@ require('lualine').setup {
   inactive_winbar = {},
   extensions = {}
 }
+
+-- TELESCOPE
+require('telescope').setup{
+    defaults = {
+        border = true,
+        mappings = {
+            -- Keybinding to close any Telescope Window
+            i = { ["tt"] = require('telescope.actions').close },
+            n = { ["tt"] = require('telescope.actions').close },
+        },
+    },
+    pickers = {
+        find_files = {
+            attach_mappings = function(_, map)
+            map('i', '<CR>', require('telescope.actions').select_tab)
+            map('n', '<CR>', require('telescope.actions').select_tab)
+            return true
+            end,
+        },
+        oldfiles = {
+            attach_mappings = function(_, map)
+            map('i', '<CR>', require('telescope.actions').select_tab)
+            map('n', '<CR>', require('telescope.actions').select_tab)
+            return true
+            end,
+        },
+    },
+}
+
 EOF
 
-" Enable true colors
-"if (has("termguicolors"))
-"  set termguicolors
-"endif
-
-set background=dark
-
-let g:palenight_termcolors=16
-"let g:palenight_terminal_italics=1
-colorscheme palenight
+" COLOR SCHEME
 syntax on
-syntax enable
+set cursorline
+colorscheme mellow
 
-"let g:material_style = "palenight"
-"colorscheme material
+" KEY MAPPING
+inoremap \\ <esc>
+vnoremap \\ <esc>
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>tg <cmd>Telescope live_grep<cr>
+nnoremap <leader>tgs <cmd>Telescope grep_string<cr>
+nnoremap <leader>th <cmd>Telescope command_history<cr>
+nnoremap <leader>to <cmd>Telescope oldfiles<cr>
 
+" Set Telescope border highlight colors for dark backgrounds
+highlight TelescopeBorder guifg=#ECAAD6 guibg=NONE
+highlight TelescopePromptBorder guifg=#ECAAD6  guibg=NONE
+highlight TelescopeResultsBorder guifg=#ECAAD6 guibg=NONE
+highlight TelescopePreviewBorder guifg=#ECAAD6 guibg=NONE
 
+" Set Telescope result header highlight colors for dark backgrounds
+highlight TelescopeResultsTitle guifg=#ffffff guibg=NONE
+highlight TelescopePreviewTitle guifg=#ffffff guibg=NONE
+highlight TelescopePromptTitle guifg=#ffffff guibg=NONE
+
+" OTHER
 set number
 set nowrap
 set clipboard=unnamedplus
 set tabstop=4
 set expandtab
 set shiftwidth=4
-inoremap \\ <esc>
-vnoremap \\ <esc>
 autocmd TermOpen * startinsert
 autocmd TermOpen * setlocal nonumber
 autocmd TermEnter * setlocal signcolumn=no
