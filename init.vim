@@ -26,7 +26,7 @@ call plug#end()
 
 lua << EOF
 require("nvim-treesitter.configs").setup({
-    ensure_installed = { "c", "cpp", "javascript", "typescript", "lua", "vim" },
+    ensure_installed = { "c", "cpp", "javascript", "typescript", "lua", "vim", "python" },
     sync_install = false,
     auto_install = true,
     highlight = {
