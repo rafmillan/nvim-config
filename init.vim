@@ -117,43 +117,7 @@ EOF
 
 "" COLOR SCHEME
 syntax on
-set cursorline
-colorscheme mellow
-
-" KEY MAPPING
-let mapleader = " "
-inoremap \\ <esc>
-vnoremap \\ <esc>
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>g <cmd>Telescope live_grep<cr>
-nnoremap <leader>gs <cmd>Telescope grep_string<cr>
-nnoremap <leader>h <cmd>Telescope command_history<cr>
-nnoremap <leader>ol <cmd>Telescope oldfiles<cr>
-
-" Set Telescope border highlight colors for dark backgrounds
-highlight TelescopeBorder guifg=#ECAAD6 guibg=NONE
-highlight TelescopePromptBorder guifg=#ECAAD6  guibg=NONE
-highlight TelescopeResultsBorder guifg=#ECAAD6 guibg=NONE
-highlight TelescopePreviewBorder guifg=#ECAAD6 guibg=NONE
-
-" Set Telescope result header highlight colors for dark backgrounds
-highlight TelescopeResultsTitle guifg=#ffffff guibg=NONE
-highlight TelescopePreviewTitle guifg=#ffffff guibg=NONE
-highlight TelescopePromptTitle guifg=#ffffff guibg=NONE
-
-" OTHER
-set number
-set nowrap
-set clipboard=unnamedplus
-set tabstop=4
-set expandtab
-set shiftwidth=4
-autocmd TermOpen * startinsert
-autocmd TermOpen * setlocal nonumber
-autocmd TermEnter * setlocal signcolumn=no
-
-" COLOR SCHEME
-syntax on
+set termguicolors
 set cursorline
 colorscheme mellow
 
@@ -181,6 +145,7 @@ highlight TelescopePromptTitle guifg=#ffffff guibg=NONE
 " OTHER
 set number
 set nowrap
+set cmdheight=0
 set clipboard=unnamedplus
 set tabstop=4
 set expandtab
