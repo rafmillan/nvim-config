@@ -26,6 +26,11 @@ Plug 'preservim/nerdcommenter'
 Plug 'f-person/git-blame.nvim'
 Plug 'petertriho/nvim-scrollbar'
 Plug 'kevinhwang91/nvim-hlslens'
+Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
+Plug 'romgrk/barbar.nvim'
+Plug 'lukas-reineke/indent-blankline.nvim'
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'mhinz/vim-startify'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -36,6 +41,105 @@ call plug#end()
 "
 
 lua << EOF
+-- STARTIFY
+vim.g.NERDTreeHijackNetrw = 0
+vim.g.loaded_netrw = 0
+vim.g.loaded_netrwPlugin = 1
+vim.g.startify_lists = {
+  { type = 'dir', header = { '   MRU ' .. vim.fn.getcwd() } }
+}
+vim.g.startify_files_number = 10
+vim.g.startify_change_to_dir = 0
+vim.g.startify_change_to_vcs_root = 0  -- Don't change to VCS root
+vim.g.startify_enable_special = 0      -- Disable special buffers in session
+vim.g.startify_session_persistence = 0 -- Don't auto-save sessions
+vim.g.startify_session_autoload = 0
+vim.g.startify_disable_at_vimenter = 0
+
+-- BARBAR
+vim.g.barbar_auto_setup = false
+require('barbar').setup({
+  animation = false,
+  auto_hide = false,
+  clickable = true,
+  exclude_ft = {'startify'}, -- Exclude startify from barbar
+  exclude_name = {'[No Name]'}, -- Exclude unnamed buffers
+  focus_on_close = 'previous',
+  hide = {extensions = false, inactive = false},
+  highlight_alternate = false,
+  highlight_inactive_file_icons = false,
+  highlight_visible = true,
+  icons = {
+    buffer_index = false,
+    buffer_number = false,
+    button = '',
+    diagnostics = {
+      [vim.diagnostic.severity.ERROR] = {enabled = true, icon = 'ﬀ'},
+      [vim.diagnostic.severity.WARN] = {enabled = false},
+      [vim.diagnostic.severity.INFO] = {enabled = false},
+      [vim.diagnostic.severity.HINT] = {enabled = true},
+    },
+    gitsigns = {
+      added = {enabled = true, icon = '+'},
+      changed = {enabled = true, icon = '~'},
+      deleted = {enabled = true, icon = '-'},
+    },
+    filetype = {
+      custom_colors = false,
+      enabled = true,
+    },
+    -- separator = {left = '▎', right = ''}
+    separator = {left = '|', right = '|'},
+    separator_at_end = false,
+    modified = {button = '●'},
+    pinned = {button = '*', filename = true},
+    preset = 'default',
+    alternate = {filetype = {enabled = false}},
+    current = {buffer_index = true},
+    inactive = {buffer_index = true},
+    visible = {modified = {buffer_number = false}},
+  },
+  insert_at_end = false,
+  insert_at_start = false,
+  maximum_padding = 1,
+  minimum_padding = 1,
+  maximum_length = 30,
+  minimum_length = 5,
+  semantic_letters = true,
+  sidebar_filetypes = {
+    NvimTree = true,
+    undotree = {text = 'undotree'},
+  },
+  sort = {
+    ignore_case = false,
+  },
+})
+vim.keymap.set('n', '<A-c>', function()
+  local buffers = vim.fn.getbufinfo({buflisted = 1})
+  local visible_buffers = {}
+  
+  for _, buf in ipairs(buffers) do
+    if buf.listed == 1 and buf.name ~= '' then
+      table.insert(visible_buffers, buf)
+    end
+  end
+  
+  if #visible_buffers <= 1 then
+    -- If this is the last buffer, quit Neovim
+    vim.cmd('quit')
+  else
+    -- Otherwise, close the buffer normally
+    vim.cmd('BufferClose!')
+  end
+end, { noremap = true, silent = true })
+
+-- INDENT LINE
+require("ibl").setup {
+    indent = {
+        char = "╎"
+    }
+}
+
 -- GITHUB THEMES
 require('github-theme').setup()
 
@@ -50,7 +154,6 @@ require("nvim-treesitter.configs").setup({
 })
 
 -- SCROLLBAR
--- Setup nvim-scrollbar
 require("scrollbar").setup({
   show = true,
   set_highlights = true,
@@ -86,7 +189,9 @@ local kopts = {noremap = true, silent = true}
 -- GIT BLAME
 require('gitblame').setup {
      --Note how the `gitblame_` prefix is omitted in `setup`
-    enabled = false,
+    enabled = true,
+    message_template = '<sha> • <author> • <date> • <summary>'
+
 } 
 
 -- LUALINE
@@ -112,9 +217,9 @@ require('lualine').setup {
   sections = {
     lualine_a = {'mode'},
     lualine_b = {'branch', 'diff', 'diagnostics'},
-    lualine_c = {'filename', 'tabs'},
-    lualine_x = {'encoding', 'fileformat', 'filetype'},
-    lualine_y = {'progress'},
+    lualine_c = {''},
+    lualine_x = {'progress'},
+    lualine_y = {'filetype'},
     lualine_z = {'location'}
   },
   inactive_sections = {
@@ -160,15 +265,11 @@ require('telescope').setup{
             hidden = true,
             no_ignore = true,
             attach_mappings = function(_, map)
-            map('i', '<CR>', require('telescope.actions').select_tab)
-            map('n', '<CR>', require('telescope.actions').select_tab)
             return true
             end,
         },
         oldfiles = {
             attach_mappings = function(_, map)
-            map('i', '<CR>', require('telescope.actions').select_tab)
-            map('n', '<CR>', require('telescope.actions').select_tab)
             return true
             end,
         },
@@ -181,19 +282,20 @@ EOF
 syntax on
 set cursorline
 colorscheme mellow
-"" colorscheme github_dark_colorblind 
 
 " KEY MAPPING
 let mapleader = " "
 inoremap <C-`> <esc>
 vnoremap <C-`> <esc>
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>g <cmd>Telescope live_grep<cr>
 nnoremap <leader>gs <cmd>Telescope grep_string<cr>
 nnoremap <leader>h <cmd>Telescope command_history<cr>
 nnoremap <leader>o <cmd>Telescope oldfiles<cr>
-nnoremap n :execute 'normal! ' . v:count1 . 'n'<CR>:lua require('hlslens').start()<CR>
-nnoremap N :execute 'normal! ' . v:count1 . 'N'<CR>:lua require('hlslens').start()<CR>
+nnoremap n :execute 'normal! ' . v:count1 . 'nzz'<CR>:lua require('hlslens').start()<CR>
+nnoremap N :execute 'normal! ' . v:count1 . 'Nzz'<CR>:lua require('hlslens').start()<CR>
 nnoremap * *:lua require('hlslens').start()<CR>
 nnoremap # #:lua require('hlslens').start()<CR>
 nnoremap g* g*:lua require('hlslens').start()<CR>
@@ -211,12 +313,39 @@ highlight TelescopeResultsTitle guifg=#ffffff guibg=NONE
 highlight TelescopePreviewTitle guifg=#ffffff guibg=NONE
 highlight TelescopePromptTitle guifg=#ffffff guibg=NONE
 
+" Tab Options
+" Move to previous/next
+nnoremap <silent>    <A-,> <Cmd>BufferPrevious<CR>
+nnoremap <silent>    <A-.> <Cmd>BufferNext<CR>
+" Re-order to previous/next
+nnoremap <silent>    <A-<> <Cmd>BufferMovePrevious<CR>
+nnoremap <silent>    <A->> <Cmd>BufferMoveNext<CR>
+" Goto buffer in position...
+nnoremap <silent>    <A-1> <Cmd>BufferGoto 1<CR>
+nnoremap <silent>    <A-2> <Cmd>BufferGoto 2<CR>
+nnoremap <silent>    <A-3> <Cmd>BufferGoto 3<CR>
+nnoremap <silent>    <A-4> <Cmd>BufferGoto 4<CR>
+nnoremap <silent>    <A-5> <Cmd>BufferGoto 5<CR>
+nnoremap <silent>    <A-6> <Cmd>BufferGoto 6<CR>
+nnoremap <silent>    <A-7> <Cmd>BufferGoto 7<CR>
+nnoremap <silent>    <A-8> <Cmd>BufferGoto 8<CR>
+nnoremap <silent>    <A-9> <Cmd>BufferGoto 9<CR>
+nnoremap <silent>    <A-0> <Cmd>BufferLast<CR>
+" Close buffer
+" nnoremap <silent>    <A-c> <Cmd>BufferClose<CR>
+" Restore buffer
+nnoremap <silent>    <A-s-c> <Cmd>BufferRestore<CR>
+" Magic buffer-picking mode
+nnoremap <silent>    <A-p>    <Cmd>BufferPick<CR>
+nnoremap <silent>    <A-s-p>  <Cmd>BufferPickDelete<CR>
+" Pin/unpin buffer
+nnoremap <silent>    <C-p> <Cmd>BufferPin<CR>
+" Goto pinned/unpinned buffer
+nnoremap <silent>    <C-s-p> <Cmd>BufferGotoPinned 0<CR>
 
 " OTHER
 let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
-let g:gitblame_enabled = 1
-let g:gitblame_message_template = '  <sha> • <author> • <date> • <summary>'
 set number
 set mousescroll=hor:0
 set autoread
