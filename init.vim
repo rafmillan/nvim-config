@@ -42,12 +42,34 @@ call plug#end()
 
 lua << EOF
 -- STARTIFY
+vim.g.startify_custom_header = {
+  "                                             __                                                     ",
+  "                                          ,o88888                                                   ",
+  "                                       ,o8888888'                                                   ",
+  "                  ,:o:o:oooo.        ,8O88Pd8888\"                                                   ",
+  "               ,.::.::o:ooooOoOoO. ,oO8O8Pd888'\"                                                    ",
+  "            ,.:.::o:ooOoOoOO8O8OOo.8OOPd8O8O\"                                                       ",
+  "           , ..:.::o:ooOoOOOO8OOOOo.FdO8O8\"                                                         ",
+  "           , ..:.::o:ooOoOOOO8OOOOo.FdO8O8\"    ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗   ",
+  "          , ..:.::o:ooOoOO8O888O8O,COCOO\"      ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║   ",
+  "         , . ..:.::o:ooOoOOOO8OOOOCOCO\"        ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║   ",
+  "          . ..:.::o:ooOoOoOO8O8OCCCC\"o         ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║   ",
+  "             . ..:.::o:ooooOoCoCCC\"o:o         ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║   ",
+  "             . ..:.::o:o:,cooooCo\"oo:o:        ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝   ",
+  "          `   . . ..:.:cocoooo\"'o:o:::'                                                             ",
+  "          .`   . ..::ccccoc\"'o:o:o:::'         ░░░░░░▒▒▒▒▒▒▓▓▓▓▓▓   Welcome!   ░░░░░░▒▒▒▒▒▒▓▓▓▓▓▓   ",
+  "         :.:.    ,c:cccc\"':.:.:.:.:.'                                                               ", 
+  "       ..:.:'`::::c:''..:.:.:.:.:.'                                                                 ",
+  "     ...:.'.:.::::'    . . . . .'                                                                   ",
+  "    .. . ....:.\"' `   .  . . ''                                                                     ",
+  "  . . . ....\"'                                                                                      ",
+  "  .. . .\"'                                                                                          ",
+  " .                                                                                                  ",
+  "",
+}
 vim.g.NERDTreeHijackNetrw = 0
 vim.g.loaded_netrw = 0
 vim.g.loaded_netrwPlugin = 1
-vim.g.startify_lists = {
-  { type = 'dir', header = { '   MRU ' .. vim.fn.getcwd() } }
-}
 vim.g.startify_files_number = 10
 vim.g.startify_change_to_dir = 0
 vim.g.startify_change_to_vcs_root = 0  -- Don't change to VCS root
@@ -55,6 +77,10 @@ vim.g.startify_enable_special = 0      -- Disable special buffers in session
 vim.g.startify_session_persistence = 0 -- Don't auto-save sessions
 vim.g.startify_session_autoload = 0
 vim.g.startify_disable_at_vimenter = 0
+vim.g.startify_lists = {
+  { type = 'dir', header = { 'MRU ' .. vim.fn.getcwd() } }
+}
+vim.g.startify_custom_indices = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
 
 -- BARBAR
 vim.g.barbar_auto_setup = false
@@ -137,7 +163,26 @@ end, { noremap = true, silent = true })
 require("ibl").setup {
     indent = {
         char = "╎"
-    }
+    },
+    exclude = {
+      filetypes = {
+          "startify",
+          "help",
+          "terminal",
+          "dashboard",
+          "packer",
+          "lspinfo",
+          "TelescopePrompt",
+          "mason",
+          "",
+      },
+      buftypes = {
+          "terminal",
+          "nofile",
+          "quickfix",
+          "prompt",
+      },
+    },
 }
 
 -- GITHUB THEMES
