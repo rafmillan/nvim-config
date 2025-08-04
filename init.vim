@@ -1,48 +1,195 @@
+" =============================================================================
+" PLUGIN MANAGEMENT
+" =============================================================================
 call plug#begin()
-" The default plugin directory will be as follows:
-"   - Vim (Linux/macOS): '~/.vim/plugged'
-"   - Vim (Windows): '~/vimfiles/plugged'
-"   - Neovim (Linux/macOS/Windows): stdpath('data') . '/plugged'
-" You can specify a custom plugin directory by passing it as the argument
-"   - e.g. `call plug#begin('~/.vim/plugged')`
-"   - Avoid using standard Vim directory names like 'plugin'
 
-" Make sure you use single quotes
-
+" UI & THemes
 Plug 'drewtempelmeyer/palenight.vim'
 Plug 'marko-cerovac/material.nvim'
-Plug 'nvim-treesitter/nvim-treesitter'
-Plug 'm4xshen/autoclose.nvim'
-Plug 'nvim-lualine/lualine.nvim'
-Plug 'nvim-tree/nvim-web-devicons'
 Plug 'sonph/onehalf', { 'rtp': 'vim' }
 Plug 'dgox16/oldworld.nvim'
 Plug 'mellow-theme/mellow.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'", { 'tag': '0.1.8' }
 Plug 'projekt0n/github-nvim-theme'
 Plug 'ayu-theme/ayu-vim'
-Plug 'preservim/nerdcommenter'
-Plug 'f-person/git-blame.nvim'
-Plug 'petertriho/nvim-scrollbar'
-Plug 'kevinhwang91/nvim-hlslens'
-Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
+
+" Status & Navigation
+Plug 'nvim-lualine/lualine.nvim'
+Plug 'nvim-tree/nvim-web-devicons'
 Plug 'romgrk/barbar.nvim'
-Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'mhinz/vim-startify'
 
-" Initialize plugin system
-" - Automatically executes `filetype plugin indent on` and `syntax enable`.
-call plug#end()
-" You can revert the settings after the call like so:
-"   filetype indent off   " Disable file-type-specific indentation
-"   syntax off
-"
+" Language & Syntax
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'm4xshen/autoclose.nvim'
+Plug 'preservim/nerdcommenter'
 
+" Search & Telescope
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'", { 'tag': '0.1.8' }
+
+" Git & Development
+Plug 'f-person/git-blame.nvim'
+Plug 'github/copilot.vim'
+
+" Session Management
+Plug 'rmagatti/auto-session'
+
+" Visual Enhancements
+Plug 'petertriho/nvim-scrollbar'
+Plug 'kevinhwang91/nvim-hlslens'
+Plug 'lukas-reineke/indent-blankline.nvim'
+
+call plug#end()
+
+" =============================================================================
+" BASIC SETTINGS
+" =============================================================================
+let mapleader = " "
+syntax on
+set number
+set cursorline
+set mousescroll=hor:0
+set autoread
+set updatetime=300
+set nowrap
+set cmdheight=0
+set clipboard=unnamedplus
+set tabstop=4
+set expandtab
+set shiftwidth=4
+
+set scrolloff=10
+set sidescrolloff=8
+set ignorecase
+set smartcase
+" set signcolumn=yes
+" set colorcolumn=120
+set nobackup
+set nowritebackup
+set noswapfile
+set undofile
+set noautowrite
+
+
+" =============================================================================
+" AUTOCOMMANDS
+" =============================================================================
+" Show command line when recording macros, hide when done
+augroup MacroRecording
+    autocmd!
+    autocmd RecordingEnter * set cmdheight=1
+    autocmd RecordingLeave * set cmdheight=0
+augroup END
+
+" Show command line when recording macros, hide when done
+augroup TerminalSettings
+    autocmd!
+    autocmd TermOpen * startinsert
+    autocmd TermOpen * setlocal nonumber
+    autocmd TermEnter * setlocal signcolumn=no
+augroup END
+
+augroup AutoReload
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * :checktime
+augroup END
+" =============================================================================
+" FUNCTIONS
+" =============================================================================
+" Toggle between relative and absolute line numbers
+function! NumberToggle()
+    if (&relativenumber == 1)
+        set norelativenumber
+        set number
+    else
+        set relativenumber
+    endif
+endfunction
+
+" Toggle between no numbers and absolute line numbers
+function! NoNumberToggle()
+    if (&number == 1)
+        set nonumber
+    else
+        set number
+    endif
+endfunction
+
+" =============================================================================
+" SESSION MANAGEMENT 
+" =============================================================================
+set sessionoptions+=winpos,terminal,folds
+
+" =============================================================================
+" KEY MAPPINGS
+" =============================================================================
+" Basic mappings
+nnoremap <leader>' :call NumberToggle()<CR>
+nnoremap <leader>n :call NoNumberToggle()<CR>
+inoremap <C-`> <esc>
+vnoremap <C-`> <esc>
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+nnoremap <leader>q :q<CR>
+
+" Telescope Mappings
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>gg <cmd>Telescope live_grep<cr>
+nnoremap <leader>gs <cmd>Telescope grep_string<cr>
+nnoremap <leader>h <cmd>Telescope command_history<cr>
+nnoremap <leader>o <cmd>Telescope oldfiles<cr>
+
+" Search mappings
+nnoremap <Leader>l :nohlsearch<CR>
+nnoremap n :execute 'normal! ' . v:count0 . 'nzz'<CR>:lua require('hlslens').start()<CR>
+nnoremap N :execute 'normal! ' . v:count0 . 'Nzz'<CR>:lua require('hlslens').start()<CR>
+nnoremap * *:lua require('hlslens').start()<CR>
+nnoremap # #:lua require('hlslens').start()<CR>
+nnoremap g* g*:lua require('hlslens').start()<CR>
+nnoremap g# g#:lua require('hlslens').start()<CR>
+
+" Navigation Mappings
+nnoremap <leader>[ <C-o> 
+nnoremap <leader>] <C-i>
+
+" Buffer Navigation
+nnoremap <silent>    <A-,> <Cmd>BufferPrevious<CR>
+nnoremap <silent>    <A-.> <Cmd>BufferNext<CR>
+nnoremap <silent>    <A-<> <Cmd>BufferMovePrevious<CR>
+nnoremap <silent>    <A->> <Cmd>BufferMoveNext<CR>
+
+" Buffer Selection
+nnoremap <silent>    <leader>1 <Cmd>BufferGoto 1<CR>
+nnoremap <silent>    <leader>2 <Cmd>BufferGoto 2<CR>
+nnoremap <silent>    <leader>3 <Cmd>BufferGoto 3<CR>
+nnoremap <silent>    <leader>4 <Cmd>BufferGoto 4<CR>
+nnoremap <silent>    <leader>5 <Cmd>BufferGoto 5<CR>
+nnoremap <silent>    <leader>6 <Cmd>BufferGoto 6<CR>
+nnoremap <silent>    <leader>7 <Cmd>BufferGoto 7<CR>
+nnoremap <silent>    <leader>8 <Cmd>BufferGoto 8<CR>
+nnoremap <silent>    <leader>9 <Cmd>BufferGoto 9<CR>
+nnoremap <silent>    <leader>0 <Cmd>BufferLast<CR>
+
+" Buffer management
+" nnoremap <silent>    <leader>x      <Cmd>BufferClose!<CR> (handled by custom function)
+nnoremap <silent>    <A-s-c>    <Cmd>BufferRestore<CR>
+nnoremap <silent>    <A-p>      <Cmd>BufferPick<CR>
+nnoremap <silent>    <A-s-p>    <Cmd>BufferPickDelete<CR>
+nnoremap <silent>    <C-p>      <Cmd>BufferPin<CR>
+nnoremap <silent>    <C-s-p>    <Cmd>BufferGotoPinned 0<CR>
+
+" Copilot
+imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+let g:copilot_no_tab_map = v:true
+
+
+" =============================================================================
+" LUA CONFIGURATION
+" =============================================================================
 lua << EOF
 -- STARTIFY
-vim.g.startify_custom_header = {
+vim.g.startify_custom_header = vim.fn['startify#center']({
   "                                             __                                                     ",
   "                                          ,o88888                                                   ",
   "                                       ,o8888888'                                                   ",
@@ -66,7 +213,9 @@ vim.g.startify_custom_header = {
   "  .. . .\"'                                                                                          ",
   " .                                                                                                  ",
   "",
-}
+})
+
+-- Startify settings
 vim.g.NERDTreeHijackNetrw = 0
 vim.g.loaded_netrw = 0
 vim.g.loaded_netrwPlugin = 1
@@ -78,9 +227,10 @@ vim.g.startify_session_persistence = 0 -- Don't auto-save sessions
 vim.g.startify_session_autoload = 0
 vim.g.startify_disable_at_vimenter = 0
 vim.g.startify_lists = {
-  { type = 'dir', header = { 'MRU ' .. vim.fn.getcwd() } }
+  { type = 'dir', header ={ 'MRU ' .. vim.fn.getcwd() } }
 }
 vim.g.startify_custom_indices = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
+
 
 -- BARBAR
 vim.g.barbar_auto_setup = false
@@ -88,8 +238,8 @@ require('barbar').setup({
   animation = false,
   auto_hide = false,
   clickable = true,
-  exclude_ft = {'startify'}, -- Exclude startify from barbar
-  exclude_name = {'[No Name]'}, -- Exclude unnamed buffers
+  --exclude_ft = {'startify'}, -- Exclude startify from barbar
+  --exclude_name = {'[No Name]'}, -- Exclude unnamed buffers
   focus_on_close = 'previous',
   hide = {extensions = false, inactive = false},
   highlight_alternate = false,
@@ -140,7 +290,9 @@ require('barbar').setup({
     ignore_case = false,
   },
 })
-vim.keymap.set('n', '<A-c>', function()
+
+
+vim.keymap.set('n', '<leader>x', function()
   local buffers = vim.fn.getbufinfo({buflisted = 1})
   local visible_buffers = {}
   
@@ -152,12 +304,17 @@ vim.keymap.set('n', '<A-c>', function()
   
   if #visible_buffers <= 1 then
     -- If this is the last buffer, quit Neovim
-    vim.cmd('quit')
+    vim.cmd('BufferClose')
+    vim.cmd('Startify')
   else
     -- Otherwise, close the buffer normally
     vim.cmd('BufferClose!')
   end
 end, { noremap = true, silent = true })
+
+-- AUTOSESSION
+require('auto-session').setup({})
+
 
 -- INDENT LINE
 require("ibl").setup {
@@ -230,6 +387,12 @@ require("hlslens").setup({
   end,
 })
 local kopts = {noremap = true, silent = true}
+vim.api.nvim_set_keymap('n', 'n',
+    [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', 'N',
+    [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
 
 -- GIT BLAME
 require('gitblame').setup {
@@ -262,15 +425,38 @@ require('lualine').setup {
   sections = {
     lualine_a = {'mode'},
     lualine_b = {'branch', 'diff', 'diagnostics'},
-    lualine_c = {''},
-    lualine_x = {'progress'},
+    lualine_c = {
+      {
+        'filename',
+        path = 1,  -- 0 = just filename, 1 = relative path, 2 = absolute path
+        shorting_target = 40,  -- Shortens path to leave 40 spaces for other components
+        symbols = {
+          modified = '[+]',      -- Text to show when the file is modified
+          readonly = '[-]',      -- Text to show when the file is non-modifiable or readonly
+          unnamed = '[No Name]', -- Text to show for unnamed buffers
+          newfile = '[New]',     -- Text to show for new created file before first write
+        }
+      }
+    },
+    -- lualine_x = {'progress'},
+    lualine_x = {
+        function()
+            return require('auto-session.lib').current_session_name(true) or 'No Session'
+        end,
+    },
     lualine_y = {'filetype'},
     lualine_z = {'location'}
   },
   inactive_sections = {
     lualine_a = {},
     lualine_b = {},
-    lualine_c = {'filename'},
+    -- lualine_c = {'filename'},
+    lualine_c = {
+        {
+    	    'filename',
+            path = 1,  -- Show relative path for inactive windows too
+        }
+    },
     lualine_x = {'location'},
     lualine_y = {},
     lualine_z = {}
@@ -285,6 +471,7 @@ require('lualine').setup {
 require('telescope').setup{
     defaults = {
         border = true,
+        borderchars = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
         layout_strategy = 'vertical',
         layout_config = {
         -- Remove the layout_strategy from here
@@ -298,7 +485,7 @@ require('telescope').setup{
         mappings = {
             -- Keybinding to close any Telescope Window
             i = {
-                ["qq"] = require('telescope.actions').close,
+                -- ["qq"] = require('telescope.actions').close,
                 ["<M-a>"] = require('telescope.actions').results_scrolling_left,
                 ["<M-d>"] = require('telescope.actions').results_scrolling_right,
             },
@@ -323,83 +510,22 @@ require('telescope').setup{
 
 EOF
 
-"" COLOR SCHEME
-syntax on
-set cursorline
+" =============================================================================
+" PLUGIN CONFIGURATION
+" =============================================================================
+"NERDCommenter
+let g:NERDSpaceDelims = 1
+let g:NERDDefaultAlign = 'left'
+
+" Color Scheme
 colorscheme mellow
 
-" KEY MAPPING
-let mapleader = " "
-inoremap <C-`> <esc>
-vnoremap <C-`> <esc>
-nnoremap <C-d> <C-d>zz
-nnoremap <C-u> <C-u>zz
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>g <cmd>Telescope live_grep<cr>
-nnoremap <leader>gs <cmd>Telescope grep_string<cr>
-nnoremap <leader>h <cmd>Telescope command_history<cr>
-nnoremap <leader>o <cmd>Telescope oldfiles<cr>
-nnoremap n :execute 'normal! ' . v:count1 . 'nzz'<CR>:lua require('hlslens').start()<CR>
-nnoremap N :execute 'normal! ' . v:count1 . 'Nzz'<CR>:lua require('hlslens').start()<CR>
-nnoremap * *:lua require('hlslens').start()<CR>
-nnoremap # #:lua require('hlslens').start()<CR>
-nnoremap g* g*:lua require('hlslens').start()<CR>
-nnoremap g# g#:lua require('hlslens').start()<CR>
-nnoremap <Leader>l :nohlsearch<CR>
-
-" Set Telescope border highlight colors for dark backgrounds
+" Telescope customization
 highlight TelescopeBorder guifg=#ECAAD6 guibg=NONE
 highlight TelescopePromptBorder guifg=#ECAAD6  guibg=NONE
 highlight TelescopeResultsBorder guifg=#ECAAD6 guibg=NONE
 highlight TelescopePreviewBorder guifg=#ECAAD6 guibg=NONE
-
-" Set Telescope result header highlight colors for dark backgrounds
 highlight TelescopeResultsTitle guifg=#ffffff guibg=NONE
 highlight TelescopePreviewTitle guifg=#ffffff guibg=NONE
 highlight TelescopePromptTitle guifg=#ffffff guibg=NONE
 
-" Tab Options
-" Move to previous/next
-nnoremap <silent>    <A-,> <Cmd>BufferPrevious<CR>
-nnoremap <silent>    <A-.> <Cmd>BufferNext<CR>
-" Re-order to previous/next
-nnoremap <silent>    <A-<> <Cmd>BufferMovePrevious<CR>
-nnoremap <silent>    <A->> <Cmd>BufferMoveNext<CR>
-" Goto buffer in position...
-nnoremap <silent>    <A-1> <Cmd>BufferGoto 1<CR>
-nnoremap <silent>    <A-2> <Cmd>BufferGoto 2<CR>
-nnoremap <silent>    <A-3> <Cmd>BufferGoto 3<CR>
-nnoremap <silent>    <A-4> <Cmd>BufferGoto 4<CR>
-nnoremap <silent>    <A-5> <Cmd>BufferGoto 5<CR>
-nnoremap <silent>    <A-6> <Cmd>BufferGoto 6<CR>
-nnoremap <silent>    <A-7> <Cmd>BufferGoto 7<CR>
-nnoremap <silent>    <A-8> <Cmd>BufferGoto 8<CR>
-nnoremap <silent>    <A-9> <Cmd>BufferGoto 9<CR>
-nnoremap <silent>    <A-0> <Cmd>BufferLast<CR>
-" Close buffer
-" nnoremap <silent>    <A-c> <Cmd>BufferClose<CR>
-" Restore buffer
-nnoremap <silent>    <A-s-c> <Cmd>BufferRestore<CR>
-" Magic buffer-picking mode
-nnoremap <silent>    <A-p>    <Cmd>BufferPick<CR>
-nnoremap <silent>    <A-s-p>  <Cmd>BufferPickDelete<CR>
-" Pin/unpin buffer
-nnoremap <silent>    <C-p> <Cmd>BufferPin<CR>
-" Goto pinned/unpinned buffer
-nnoremap <silent>    <C-s-p> <Cmd>BufferGotoPinned 0<CR>
-
-" OTHER
-let g:NERDSpaceDelims = 1
-let g:NERDDefaultAlign = 'left'
-set number
-set mousescroll=hor:0
-set autoread
-set nowrap
-set cmdheight=0
-set clipboard=unnamedplus
-set tabstop=4
-set expandtab
-set shiftwidth=4
-autocmd TermOpen * startinsert
-autocmd TermOpen * setlocal nonumber
-autocmd TermEnter * setlocal signcolumn=no
