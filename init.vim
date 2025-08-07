@@ -21,7 +21,6 @@ Plug 'mhinz/vim-startify'
 
 " Language & Syntax
 Plug 'nvim-treesitter/nvim-treesitter'
-Plug 'm4xshen/autoclose.nvim'
 Plug 'preservim/nerdcommenter'
 
 " Search & Telescope
@@ -70,6 +69,8 @@ set nowritebackup
 set noswapfile
 set undofile
 set noautowrite
+
+
 
 
 " =============================================================================
@@ -353,6 +354,15 @@ require("nvim-treesitter.configs").setup({
     highlight = {
         enable = true,
     },
+})
+-- -- Remove comment continuation on new lines
+vim.api.nvim_create_autocmd({"FileType", "BufEnter", "BufWinEnter"}, {
+  pattern = "*",
+  callback = function()
+    vim.opt_local.formatoptions:remove('c')
+    vim.opt_local.formatoptions:remove('r')
+    vim.opt_local.formatoptions:remove('o')
+  end,
 })
 
 -- SCROLLBAR
